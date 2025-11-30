@@ -1,0 +1,1 @@
+export type Timeframe = 'Yearly' | 'Monthly' | 'Weekly';
