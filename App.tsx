@@ -6,9 +6,36 @@ import { SummaryCard } from './components/SummaryCard';
 import { DistributionChart } from './components/DistributionChart';
 import { DetailedTable } from './components/DetailedTable';
 import { AiInsight } from './components/AiInsight';
-import { Calculator } from 'lucide-react';
+import { Calculator, GraduationCap } from 'lucide-react';
+import CpcApp from './cpc/CpcApp';
+
+type AppMode = 'calculator' | 'cpc';
+
+function ModeToggle({ mode, onChange }: { mode: AppMode; onChange: (mode: AppMode) => void }) {
+  return (
+    <div className="fixed top-4 right-4 z-50 bg-white rounded-xl shadow-sm border border-slate-200 p-1 flex gap-1">
+      <button
+        onClick={() => onChange('calculator')}
+        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+          mode === 'calculator' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50'
+        }`}
+      >
+        <Calculator className="w-3.5 h-3.5" /> Tax Calculator
+      </button>
+      <button
+        onClick={() => onChange('cpc')}
+        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+          mode === 'cpc' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50'
+        }`}
+      >
+        <GraduationCap className="w-3.5 h-3.5" /> CPC Learning
+      </button>
+    </div>
+  );
+}
 
 export default function App() {
+  const [mode, setMode] = useState<AppMode>('calculator');
   const [grossInput, setGrossInput] = useState<string>('50000');
   const [rateInput, setRateInput] = useState<string>(DEFAULT_EXCHANGE_RATE.toString());
   const [result, setResult] = useState<TaxResult | null>(null);
@@ -16,7 +43,7 @@ export default function App() {
   useEffect(() => {
     const gross = parseFloat(grossInput);
     const rate = parseFloat(rateInput);
-    
+
     // Only calculate if gross is valid. Use default rate if rate input is invalid but calculation is desired.
     const effectiveRate = !isNaN(rate) && rate > 0 ? rate : 0;
 
@@ -27,10 +54,20 @@ export default function App() {
     }
   }, [grossInput, rateInput]);
 
+  if (mode === 'cpc') {
+    return (
+      <>
+        <ModeToggle mode={mode} onChange={setMode} />
+        <CpcApp />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ModeToggle mode={mode} onChange={setMode} />
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Header */}
         <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 mb-4">
@@ -45,7 +82,7 @@ export default function App() {
         </div>
 
         {/* Input */}
-        <InputSection 
+        <InputSection
           grossValue={grossInput} 
           onGrossChange={setGrossInput}
           rateValue={rateInput}
